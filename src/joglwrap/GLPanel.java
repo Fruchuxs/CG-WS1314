@@ -31,6 +31,9 @@ public class GLPanel extends GLJPanel implements
         GLEventListener, KeyListener, MouseListener, MouseMotionListener, ActionListener, MouseWheelListener {
     // Background Color
 
+    // benoetigt, weil die erst beim initialisieren gesetzt werden
+    protected Dimension frameDim;
+
     protected Float[] color = new Float[]{1f, 1f, 1f, 0f};
     protected Float scale;
 
@@ -46,10 +49,11 @@ public class GLPanel extends GLJPanel implements
     protected Integer[] currentClickPoint;
     protected Integer[] prevClickPoint;
     private MouseEvent currentMouseEvent;
-    
+
+    // TODO: camchange
+    protected List<Cam> cams;
     protected Cam currentCamera;
     protected boolean enterCamMode = false;
-    
 
     public boolean isLight() {
         return light;
@@ -62,20 +66,20 @@ public class GLPanel extends GLJPanel implements
     public GLPanel(Integer pWidth, Integer pHeight) {
         // Init JOGL and Size
         super(InitJOGL.init());
-        super.setPreferredSize(new Dimension(pWidth, pHeight));
 
+        cams = new ArrayList<>();
         objs = new ArrayList<>();
         lights = new ArrayList<>();
         onlyDrawObjs = new ArrayList<>();
         informByMouseActions = new ArrayList<>();
+
         glut = new GLU();
-        
-        currentCamera = new Cam();
-        currentCamera.setWhRatio((float)pWidth / (float) pHeight);
-        
+        frameDim = new Dimension(pWidth, pHeight);
+        super.setPreferredSize(frameDim);
+
         initListener();
     }
-    
+
     private void initListener() {
         super.addGLEventListener(this);
         super.addKeyListener(this);
@@ -103,10 +107,15 @@ public class GLPanel extends GLJPanel implements
             informByMouseActions.add((MouseActionObserver) a);
         }
     }
-    
-    
+
+    public void addCam(Cam pCam) {
+        pCam.setWhRatio((float) frameDim.getWidth() / (float) frameDim.getHeight());
+        cams.add(pCam);
+        currentCamera = pCam;
+    }
+
     public void addOnlyDrawObj(OnlyDraw toAdd) {
-        if(toAdd != null) {
+        if (toAdd != null) {
             toAdd.setParentPanel(this);
             onlyDrawObjs.add(toAdd);
         }
@@ -150,7 +159,7 @@ public class GLPanel extends GLJPanel implements
     }
 
     public void drawObjects(GL2 gl) {
-        
+
         if (isLight() && currentLight != null) {
             gl.glEnable(GL2.GL_LIGHTING);
             currentLight.setEnabled(true);
@@ -167,20 +176,25 @@ public class GLPanel extends GLJPanel implements
         } else {
             gl.glDisable(GL2.GL_LIGHTING);
         }
-        
-        
-        
+
         currentCamera.draw(gl);
-        picking(gl);
-        
+
+        if (!enterCamMode) {
+            picking(gl);
+        }
+
+        drawOnlyDraw(gl);
+
+        // objekte die interaktionen haben zeichnen
+        drawObjects(gl, GL2.GL_RENDER);
+    }
+
+    private void drawOnlyDraw(GL2 gl) {
         // objekte ohne interaktionen zeichnen
-        for(OnlyDraw i : onlyDrawObjs) {
+        for (OnlyDraw i : onlyDrawObjs) {
             i.draw(gl);
             i.setParentPanel(this);
         }
-        
-        // objekte die interaktionen haben zeichnen
-        drawObjects(gl, GL2.GL_RENDER);
     }
 
     private void drawObjects(GL2 gl, int mode) {
@@ -215,16 +229,14 @@ public class GLPanel extends GLJPanel implements
 
             glut.gluPerspective(currentCamera.getViewingAngle(), currentCamera.getWhRatio(), 1, 1000);
             gl.glMatrixMode(GL2.GL_MODELVIEW);
-            
+
             drawObjects(gl, GL2.GL_SELECT);
-            
-            
+
             gl.glMatrixMode(GL2.GL_MODELVIEW);
             gl.glFlush();
-            
-            
+
             selectBuffer.get(select);
-            
+
             interpretClicks(select, gl.glRenderMode(GL2.GL_RENDER));
             gl.glMatrixMode(GL2.GL_PROJECTION);
             gl.glPopMatrix();
@@ -234,17 +246,17 @@ public class GLPanel extends GLJPanel implements
     }
 
     private void interpretClicks(int[] pBuffer, int pHits) {
-        if(currentMouseEvent != null) {
+        if (currentMouseEvent != null) {
             int names, ptr = 0;
             Float[] convertedClickPoints = transformMouseCoords(currentClickPoint[0], currentClickPoint[1]);
 
             for (int i = 0; i < pHits; i++) {
                 names = pBuffer[ptr];
-                System.out.println("number of names for hit : " + names);
+                //System.out.println("number of names for hit : " + names);
                 ++ptr;
-                System.out.println("z1: " + pBuffer[ptr]);
+                //System.out.println("z1: " + pBuffer[ptr]);
                 ++ptr;
-                System.out.println("z2: " + pBuffer[ptr]);
+                //System.out.println("z2: " + pBuffer[ptr]);
                 ++ptr;
 
                 for (int j = 0; j < names; j++) {
@@ -262,6 +274,10 @@ public class GLPanel extends GLJPanel implements
     public void init(GLAutoDrawable drawable) {
         GL2 gl = drawable.getGL().getGL2();
         gl.glEnable(GL.GL_DEPTH_TEST);
+        gl.glDepthFunc(GL2.GL_LEQUAL);
+        //gl.glEnable(GL2.GL_CULL_FACE);
+        gl.glShadeModel(GL2.GL_SMOOTH);
+        gl.glHint(GL2.GL_PERSPECTIVE_CORRECTION_HINT, GL2.GL_NICEST);
         gl.glEnable(GL2.GL_COLOR_MATERIAL);
 
         gl.glClearColor(color[0], color[1], color[2], color[3]);
@@ -287,11 +303,13 @@ public class GLPanel extends GLJPanel implements
         gl.glOrtho(-1, 1, -1, 1, -2, 2);
         gl.glMatrixMode(GL2.GL_MODELVIEW);
         gl.glLoadIdentity();
+        gl.glTranslatef(0, -1f, -1f);
         /*
-        if (scale != null) {
-            gl.glScalef(scale, scale, 0f);
-        }*/
+         if (scale != null) {
+         gl.glScalef(scale, scale, 0f);
+         }*/
         drawObjects(gl);
+
         gl.glFlush();
     }
 
@@ -307,36 +325,36 @@ public class GLPanel extends GLJPanel implements
     @Override
     public void keyPressed(KeyEvent e) {
         /*
-        int key = e.getKeyCode();
-        System.out.println("keyPressed " + e.getKeyCode());
+         int key = e.getKeyCode();
+         System.out.println("keyPressed " + e.getKeyCode());
 
-        switch (key) {
-            case KeyEvent.VK_LEFT:
-                currentFocus.setRotate_y(currentFocus.getRotate_y() - 15);
-                break;
-            case KeyEvent.VK_RIGHT:
-                currentFocus.setRotate_y(currentFocus.getRotate_y() + 15);
-                break;
-            case KeyEvent.VK_DOWN:
-                currentFocus.setRotate_x(currentFocus.getRotate_x() + 15);
-                break;
-            case KeyEvent.VK_UP:
-                currentFocus.setRotate_x(currentFocus.getRotate_x() - 15);
-                break;
-            case KeyEvent.VK_HOME:
-                currentFocus.setRotate_x(0f);
-                currentFocus.setRotate_y(0f);
-                break;
-            case 78: // N-Taste
-                setNextInFocus();
-                break;
-            case 76: // L-Taste
-                setNextLight();
-                break;
-            case 32: //Leer-Taste
-                setLight(!isLight());
-                break;
-        }*/
+         switch (key) {
+         case KeyEvent.VK_LEFT:
+         currentFocus.setRotate_y(currentFocus.getRotate_y() - 15);
+         break;
+         case KeyEvent.VK_RIGHT:
+         currentFocus.setRotate_y(currentFocus.getRotate_y() + 15);
+         break;
+         case KeyEvent.VK_DOWN:
+         currentFocus.setRotate_x(currentFocus.getRotate_x() + 15);
+         break;
+         case KeyEvent.VK_UP:
+         currentFocus.setRotate_x(currentFocus.getRotate_x() - 15);
+         break;
+         case KeyEvent.VK_HOME:
+         currentFocus.setRotate_x(0f);
+         currentFocus.setRotate_y(0f);
+         break;
+         case 78: // N-Taste
+         setNextInFocus();
+         break;
+         case 76: // L-Taste
+         setNextLight();
+         break;
+         case 32: //Leer-Taste
+         setLight(!isLight());
+         break;
+         }*/
 
         super.repaint();
     }
@@ -355,12 +373,12 @@ public class GLPanel extends GLJPanel implements
     public void mousePressed(MouseEvent e) {
         // mittlere maustaste gedrueckt
         // abfangen fuer kamera steuerung
-        if(e.getButton() == 2) {
+        if (e.getButton() == 2) {
             enterCamMode = true;
-        } else {
-            currentMouseEvent = e;
-            newCurrentClickPoint(e.getX(), e.getY());
         }
+
+        currentMouseEvent = e;
+        newCurrentClickPoint(e.getX(), e.getY());
 
         super.repaint();
     }
@@ -373,7 +391,7 @@ public class GLPanel extends GLJPanel implements
     public void mouseReleased(MouseEvent e) {
         currentMouseEvent = null;
         enterCamMode = false;
-        
+
         // sag allen anderen bescheid, dass die maus los gelassen wurde
         for (MouseActionObserver i : informByMouseActions) {
             i.mouseReleased();
@@ -390,15 +408,34 @@ public class GLPanel extends GLJPanel implements
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        if(enterCamMode) {
-            
+        if (enterCamMode) {
+            int newX = currentClickPoint[0] - e.getX();
+            int newY = currentClickPoint[1] - e.getY();
+            int rotateby = 2;
+
+            // rotieren um y
+            if (newX < 0) { // rechts
+                currentCamera.setRotateY(currentCamera.getRotateY() + rotateby);
+            } else if (newX > 0) { // links
+                currentCamera.setRotateY(currentCamera.getRotateY() - rotateby);
+            }
+
+            // rotieren um x
+            if (newY < 0) {
+                currentCamera.setRotateX(currentCamera.getRotateX() + rotateby);
+            } else if (newY > 0) {
+                currentCamera.setRotateX(currentCamera.getRotateX() - rotateby);
+            }
+
+            currentClickPoint[0] = e.getX();
+            currentClickPoint[1] = e.getY();
         } else {
             Float[] convertedClickPoints = transformMouseCoords(e.getX(), e.getY());
             for (MouseActionObserver i : informByMouseActions) {
                 i.mouseDragged(convertedClickPoints[0], convertedClickPoints[1], e);
             }
         }
-        
+
         super.repaint();
     }
 
@@ -430,15 +467,12 @@ public class GLPanel extends GLJPanel implements
     public void mouseWheelMoved(MouseWheelEvent e) {
         int notches = e.getWheelRotation();
 
-        if (scale == null) {
-            scale = 1f;
-        }
         if (notches < 0) {
-            scale = scale + 0.01f;
+            currentCamera.setDistance(currentCamera.getDistance() - 0.1f);
         } else {
-            scale = scale - 0.01f;
+            currentCamera.setDistance(currentCamera.getDistance() + 0.1f);
         }
-        currentFocus.setScaleFactor(scale);
+
         super.repaint();
     }
 

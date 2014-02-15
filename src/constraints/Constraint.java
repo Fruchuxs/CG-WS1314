@@ -108,7 +108,7 @@ public abstract class Constraint {
     }
     
     public float moveZ(float p) {
-        return move(p, 2, constraints.get(MAX_MIN.MAX_Z), constraints.get(MAX_MIN.MIN_Y));
+        return move(p, 2, constraints.get(MAX_MIN.MAX_Z), constraints.get(MAX_MIN.MIN_Z));
     }
     
     private boolean isInRange(float p, MAX_MIN max, MAX_MIN min) {

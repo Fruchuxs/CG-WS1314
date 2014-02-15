@@ -9,7 +9,9 @@ import com.jogamp.opengl.util.texture.TextureIO;
 import constraints.Constraint;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -17,6 +19,7 @@ import javax.media.opengl.GL2;
 import javax.media.opengl.GLException;
 import joglwrap.GLPanel;
 import joglwrap.OnlyDraw;
+import joglwrap.Transforms;
 
 /**
  *
@@ -28,6 +31,7 @@ public abstract class PolygonObject implements OnlyDraw {
 
     protected Flaeche3D[] flaechen;
     protected Punkt[] punkte;
+    protected List<Transforms> transforms = new ArrayList<Transforms>();
     protected boolean focus = false;
     protected final Integer objNr = objNumber++;
 
@@ -103,8 +107,8 @@ public abstract class PolygonObject implements OnlyDraw {
     }
 
     protected void translate(GL2 gl) {
-        float local_trans_x = trans_x * 2f;
-        float local_trans_y = trans_y * 2f;
+        float local_trans_x = trans_x * 3f;
+        float local_trans_y = trans_y * 3f;
         float local_trans_z = 0f;
 
         gl.glTranslatef(local_trans_x, local_trans_y, local_trans_z);
@@ -117,7 +121,10 @@ public abstract class PolygonObject implements OnlyDraw {
 
     protected void beforeDraw(GL2 gl) {
         gl.glPushMatrix();
-
+        
+        for(Transforms i : transforms) {
+            i.draw(gl);
+        }
         translate(gl);
         rotate(gl);
         if (isTextured()) {
@@ -134,6 +141,7 @@ public abstract class PolygonObject implements OnlyDraw {
         }
     }
 
+    @Override
     public void draw(GL2 gl) {
         draw(gl, GL2.GL_RENDER);
     }
@@ -190,6 +198,10 @@ public abstract class PolygonObject implements OnlyDraw {
             return false;
         }
         return true;
+    }
+    
+    public void addTransformation(Transforms toAdd) {
+        transforms.add(toAdd);
     }
 
     public Float getRotate_x() {

@@ -47,7 +47,6 @@ public class Sky implements OnlyDraw {
     
     @Override
     public void draw(GL2 gl) {
-        
         if(skyTexture == null) {
             loadTexture(textureToLoad);
         }
@@ -63,20 +62,17 @@ public class Sky implements OnlyDraw {
             glu.gluQuadricTexture(quadric, true);
             glu.gluQuadricOrientation(quadric, GLU.GLU_INSIDE);
 
-            gl.glDisable(GL2.GL_DEPTH_TEST);
-            gl.glDepthMask(false);
-
-
-            Cam currentCam = parentPanel.getCurrentCamera();
+            /*gl.glDisable(GL2.GL_DEPTH_TEST);
+            gl.glDepthMask(false);*/
 
             gl.glPushMatrix();
 
-            gl.glTranslatef(currentCam.getX(), currentCam.getY(), currentCam.getDistance());
+            //gl.glTranslatef(currentCam.getX(), currentCam.getY(), currentCam.getDistance());
             gl.glRotatef(90f, 1, 0, 0);
             double[] clipPlane2 = {0.0f, 0.0f, -1.0f, 0.5f};
             gl.glClipPlane(GL2.GL_CLIP_PLANE2, clipPlane2, 0);
             gl.glEnable(GL2.GL_CLIP_PLANE2);
-            glu.gluSphere(quadric, 1.5, 200, 15);
+            glu.gluSphere(quadric, 20, 200, 15);
             gl.glDisable(GL2.GL_CLIP_PLANE2);
 
             if(skyTexture != null) {
@@ -84,8 +80,8 @@ public class Sky implements OnlyDraw {
             }
             gl.glPopMatrix();
 
-            gl.glEnable(GL2.GL_DEPTH_TEST);
-            gl.glDepthMask(true);
+            //gl.glEnable(GL2.GL_DEPTH_TEST);
+            //gl.glDepthMask(true);
         }
     }
 

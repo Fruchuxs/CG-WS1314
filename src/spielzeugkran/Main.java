@@ -105,7 +105,7 @@ public class Main {
         
         cam.setRotateConstraint(camRotateConst);
         cam.setTranslateConstraint(camDistance);
-        cam.setRotateX(30f);
+        cam.setRotateX(20f);
         cam.setRotateY(320f);
         
         openGLPanel.addCam(cam);

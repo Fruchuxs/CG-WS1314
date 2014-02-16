@@ -122,8 +122,6 @@ public class Cam {
             rotateX = rotateConstraint.moveX(rotateX);
         }
         
-        System.out.println(rotateX + "x");
-        
         this.rotateX = normalizeAngle(rotateX);
     }
 
@@ -132,13 +130,11 @@ public class Cam {
     }
 
     public void setRotateY(float rotateY) {
-        System.out.println(rotateY);
         if (rotateConstraint != null) {
             rotateY = rotateConstraint.moveY(rotateY);
         }
 
         this.rotateY = normalizeAngle(rotateY);
-        System.out.println(rotateY);
     }
 
     public Constraint getRotateConstraint() {

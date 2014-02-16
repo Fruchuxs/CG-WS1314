@@ -30,12 +30,6 @@ public class ModelProxy extends PolygonObject{
         model.draw(gl);
         afterDraw(gl);
     }
-    /*
-    public Float[] isInFace(float xPos, float yPos) {
-        for(Face i : model.getFacesList()) {
-            
-        }
-    }*/
 
     public Float getExtremPoint(String pPoint) {
         return model.getExtremPoint(pPoint);

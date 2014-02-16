@@ -18,8 +18,7 @@ import java.util.logging.Logger;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLException;
 import joglwrap.GLPanel;
-import joglwrap.OnlyDraw;
-import joglwrap.Transforms;
+import transforms.Transforms;
 
 /**
  *

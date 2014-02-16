@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package joglwrap;
+package environment;
 
 import com.jogamp.opengl.util.texture.Texture;
 import com.jogamp.opengl.util.texture.TextureIO;
@@ -17,6 +17,8 @@ import javax.media.opengl.GL2;
 import javax.media.opengl.GLException;
 import javax.media.opengl.glu.GLU;
 import javax.media.opengl.glu.GLUquadric;
+import joglwrap.GLPanel;
+import objects3d.OnlyDraw;
 
 /**
  *

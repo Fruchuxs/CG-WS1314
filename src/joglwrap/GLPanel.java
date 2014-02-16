@@ -1,5 +1,8 @@
 package joglwrap;
 
+import objects3d.OnlyDraw;
+import environment.light.GLLight;
+import environment.Cam;
 import static com.jogamp.common.nio.Buffers.newDirectIntBuffer;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -184,11 +187,6 @@ public class GLPanel extends GLJPanel implements
         }
 
         drawAlltodraw(gl);
-
-        if (isLight() && currentLight != null) {
-            Shadow s = new Shadow(); // hardcoded normal :> TODO: set shadow or so
-            s.draw(gl);
-        }
     }
 
     private void drawAlltodraw(GL2 gl) {

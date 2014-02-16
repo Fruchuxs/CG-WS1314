@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package joglwrap;
+package transforms;
 
 import javax.media.opengl.GL2;
 

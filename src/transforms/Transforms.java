@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package joglwrap;
+package transforms;
 
 import javax.media.opengl.GL2;
 
@@ -12,7 +12,6 @@ import javax.media.opengl.GL2;
  *
  * @author FloH
  */
-public interface OnlyDraw {
+public interface Transforms {
     public void draw(GL2 gl);
-    public void setParentPanel(GLPanel parentPanel);
 }

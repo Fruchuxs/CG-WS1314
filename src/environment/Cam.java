@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package joglwrap;
+package environment;
 
 import constraints.Constraint;
 import javax.media.opengl.GL2;

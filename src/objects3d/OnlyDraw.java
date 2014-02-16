@@ -4,12 +4,16 @@
  * and open the template in the editor.
  */
 
-package spielzeugkran;
+package objects3d;
+
+import javax.media.opengl.GL2;import joglwrap.GLPanel;
+
 
 /**
  *
  * @author FloH
  */
-public class SpielzeugKran {
-
+public interface OnlyDraw {
+    public void draw(GL2 gl);
+    public void setParentPanel(GLPanel parentPanel);
 }

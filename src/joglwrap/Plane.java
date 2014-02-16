@@ -25,11 +25,13 @@ public class Plane implements OnlyDraw {
     private String textureToLoad;
     private float repeats;
     private float size;
+    private float[] normal;
 
     public Plane(String pTextureUrl, float pRepeats, float pSize) {
         textureToLoad = pTextureUrl;
         repeats = pRepeats;
         size = pSize;
+        normal = new float[] { 0, 1, 0};
     }
 
     private void loadTexture(String pTextureUrl, GL2 gl) {
@@ -62,6 +64,7 @@ public class Plane implements OnlyDraw {
         planeTexture.bind(gl);
 
         gl.glBegin(GL2.GL_QUADS);
+        gl.glNormal3f(normal[0], normal[1], normal[2]);
         gl.glTexCoord2f(0, 0);
         gl.glVertex3f(size, 0, size);
 
@@ -83,6 +86,14 @@ public class Plane implements OnlyDraw {
     @Override
     public void setParentPanel(GLPanel parentPanel) {
 
+    }
+
+    public float[] getNormal() {
+        return normal;
+    }
+
+    public void setNormal(float[] normal) {
+        this.normal = normal;
     }
 
 }

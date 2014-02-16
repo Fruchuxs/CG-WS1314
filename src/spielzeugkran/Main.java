@@ -11,11 +11,14 @@ import constraints.Translateable;
 import java.io.FileNotFoundException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.media.opengl.GL2;
 import javax.swing.JFrame;
 import joglwrap.Cam;
+import joglwrap.DirectionLight;
 import joglwrap.GLPanel;
 import joglwrap.Plane;
 import joglwrap.Sky;
+import joglwrap.SpotLight;
 import joglwrap.Translate;
 import objects3d.PolygonGroup;
 import objects3d.PolygonObject;
@@ -108,6 +111,9 @@ public class Main {
         openGLPanel.addOnlyDrawObj(sky);
         openGLPanel.addOnlyDrawObj(plane);
         
+        
+        openGLPanel.addLight(new SpotLight(GL2.GL_LIGHT0));
+        openGLPanel.addLight(new DirectionLight(GL2.GL_LIGHT1));
         //openGLPanel.addOnlyDrawObj(karton);
     }
 

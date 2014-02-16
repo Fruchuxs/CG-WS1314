@@ -104,6 +104,7 @@ public class PolygonGroup extends PolygonObject implements MouseActionObserver {
                 }
             } else {
                 j.draw(gl);
+                j.setCurrentViewRotation(super.getCurrentViewRotation());
             }
         }
 
@@ -117,7 +118,8 @@ public class PolygonGroup extends PolygonObject implements MouseActionObserver {
 
     @Override
     public void mouseDragged(float x, float y, MouseEvent e) {
-        // TODO code hier aufrauemen :D
+        
+
         if(active == null) {
             // deligiere an moegliche untergruppen weiter
             for(PolygonGroup i :subGroupsToInform) {
@@ -127,6 +129,11 @@ public class PolygonGroup extends PolygonObject implements MouseActionObserver {
         if (active != null) {
             switch(mouseClickButton) {
                 case 1: {
+                    // umrechnung
+                    
+                    float angle = super.getCurrentViewRotation() + super.getRotate_y() + inheritedAngle;
+                    System.out.println("angle = " + super.getCurrentViewRotation() + " + " + super.getRotate_y() + " + " + super.getRotate_y() + " = " + angle);
+                    x = (float)(x * Math.cos(Math.toRadians(angle)) + y * Math.sin(Math.toRadians(angle)));
                     moveObject(active, x, y);
                     break;
                 }
@@ -207,6 +214,15 @@ public class PolygonGroup extends PolygonObject implements MouseActionObserver {
 
     @Override
     public void setParentPanel(GLPanel parentPanel) {
-        super.parentPanel = parentPanel;
+        super.parentPanel = parentPanel; 
+    }
+    
+    @Override 
+    public void setRotate_y(Float rotate_y) {
+        super.setRotate_y(rotate_y);
+        
+        for(Map.Entry i : models.entrySet()) {
+            ((PolygonObject)i.getValue()).inheritedAngle = normalizeAngle(rotate_y + inheritedAngle);
+        }
     }
 }

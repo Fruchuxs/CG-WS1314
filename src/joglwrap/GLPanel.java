@@ -183,6 +183,15 @@ public class GLPanel extends GLJPanel implements
             picking(gl);
         }
 
+        drawAlltodraw(gl);
+
+        if (isLight() && currentLight != null) {
+            Shadow s = new Shadow(); // hardcoded normal :> TODO: set shadow or so
+            s.draw(gl);
+        }
+    }
+
+    private void drawAlltodraw(GL2 gl) {
         drawOnlyDraw(gl);
 
         // objekte die interaktionen haben zeichnen
@@ -201,6 +210,7 @@ public class GLPanel extends GLJPanel implements
         for (PolygonObject i : objs) {
             i.draw(gl, mode);
             i.setParentPanel(this);
+            i.setCurrentViewRotation(currentCamera.getRotateY());
         }
     }
 
@@ -304,10 +314,7 @@ public class GLPanel extends GLJPanel implements
         gl.glMatrixMode(GL2.GL_MODELVIEW);
         gl.glLoadIdentity();
         gl.glTranslatef(0, -1f, -1f);
-        /*
-         if (scale != null) {
-         gl.glScalef(scale, scale, 0f);
-         }*/
+
         drawObjects(gl);
 
         gl.glFlush();
@@ -373,6 +380,7 @@ public class GLPanel extends GLJPanel implements
     public void mousePressed(MouseEvent e) {
         // mittlere maustaste gedrueckt
         // abfangen fuer kamera steuerung
+        
         if (e.getButton() == 2) {
             enterCamMode = true;
         }
@@ -408,9 +416,12 @@ public class GLPanel extends GLJPanel implements
 
     @Override
     public void mouseDragged(MouseEvent e) {
+        int mouse_x = e.getX();
+        int mouse_y = e.getY();
+        
         if (enterCamMode) {
-            int newX = currentClickPoint[0] - e.getX();
-            int newY = currentClickPoint[1] - e.getY();
+            int newX = currentClickPoint[0] - mouse_x;
+            int newY = currentClickPoint[1] - mouse_y;
             int rotateby = 2;
 
             // rotieren um y
@@ -427,10 +438,10 @@ public class GLPanel extends GLJPanel implements
                 currentCamera.setRotateX(currentCamera.getRotateX() - rotateby);
             }
 
-            currentClickPoint[0] = e.getX();
-            currentClickPoint[1] = e.getY();
+            currentClickPoint[0] = mouse_x;
+            currentClickPoint[1] = mouse_y;
         } else {
-            Float[] convertedClickPoints = transformMouseCoords(e.getX(), e.getY());
+            Float[] convertedClickPoints = transformMouseCoords(mouse_x, mouse_y);
             for (MouseActionObserver i : informByMouseActions) {
                 i.mouseDragged(convertedClickPoints[0], convertedClickPoints[1], e);
             }

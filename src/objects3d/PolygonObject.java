@@ -31,7 +31,7 @@ public abstract class PolygonObject implements OnlyDraw {
 
     protected Flaeche3D[] flaechen;
     protected Punkt[] punkte;
-    protected List<Transforms> transforms = new ArrayList<Transforms>();
+    protected List<Transforms> transforms = new ArrayList<>();
     protected boolean focus = false;
     protected final Integer objNr = objNumber++;
 
@@ -52,6 +52,9 @@ public abstract class PolygonObject implements OnlyDraw {
     protected Constraint rotateConstraint;
     protected Constraint translateConstraint;
     protected GLPanel parentPanel;
+    
+    protected float currentCamRotation = 0f;
+    protected float inheritedAngle = 0f;
 
     public void loadTexture(Texture pTexToLoad) {
         if (pTexToLoad == null) {
@@ -169,6 +172,14 @@ public abstract class PolygonObject implements OnlyDraw {
     public void setFocus(boolean focus) {
         this.focus = focus;
     }
+    
+    protected float normalizeAngle(float angle) {
+        if(Math.abs(angle) > 360) {
+            angle = Math.abs(angle) - 360;
+        }
+        
+        return angle;
+    }
 
     @Override
     public int hashCode() {
@@ -213,7 +224,7 @@ public abstract class PolygonObject implements OnlyDraw {
             rotate_x = rotateConstraint.moveX(rotate_x);
         }
 
-        this.rotate_x = rotate_x;
+        this.rotate_x = normalizeAngle(rotate_x);
     }
 
     public Float getRotate_y() {
@@ -224,7 +235,7 @@ public abstract class PolygonObject implements OnlyDraw {
         if (rotateConstraint != null) {
             rotate_y = rotateConstraint.moveY(rotate_y);
         }
-        this.rotate_y = rotate_y;
+        this.rotate_y = normalizeAngle(rotate_y);
     }
 
     public Integer getObjNr() {
@@ -268,5 +279,13 @@ public abstract class PolygonObject implements OnlyDraw {
 
     public void setPrev_trans_y(Float prev_trans_y) {
         this.prev_trans_y = prev_trans_y;
+    }
+
+    public float getCurrentViewRotation() {
+        return currentCamRotation;
+    }
+
+    public void setCurrentViewRotation(float currentViewRotation) {
+        this.currentCamRotation = currentViewRotation;
     }
 }

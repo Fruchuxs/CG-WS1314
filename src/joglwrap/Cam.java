@@ -59,6 +59,14 @@ public class Cam {
         //glu.gluLookAt(x, yPos, z, 0, 0, 0, 0, 1, 0);
         glu.gluLookAt(xPos, yPos, distance, 0, 0, 0, 0, 1, 0);
     }
+    
+    private float normalizeAngle(float angle) {
+        if(Math.abs(angle) > 360) {
+            angle = Math.abs(angle) - 360;
+        }
+        
+        return angle;
+    }
 
     public float getWhRatio() {
         return whRatio;
@@ -73,7 +81,7 @@ public class Cam {
     }
 
     public void setViewingAngle(float viewingAngle) {
-        this.viewingAngle = viewingAngle;
+        this.viewingAngle = normalizeAngle(viewingAngle);
     }
 
     public float getDistance() {
@@ -113,7 +121,7 @@ public class Cam {
             rotateX = rotateConstraint.moveX(rotateX);
         }
         
-        this.rotateX = rotateX;
+        this.rotateX = normalizeAngle(rotateX);
     }
 
     public float getRotateY() {
@@ -125,7 +133,8 @@ public class Cam {
             rotateY = rotateConstraint.moveY(rotateY);
         }
         
-        this.rotateY = rotateY;
+        this.rotateY = normalizeAngle(rotateY);
+        System.out.println(rotateY);
     }
 
     public Constraint getRotateConstraint() {

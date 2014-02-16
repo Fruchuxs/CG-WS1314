@@ -52,7 +52,7 @@ public class Main {
     private void createAndAddCrane() throws FileNotFoundException {
         Constraint fahrstuhlTranslateConstraint = new Translateable(new boolean[]{false, true, false});
         Constraint fahrstuhlRotateConstraint = new Rotateable(new boolean[]{false, false, false});
-        fahrstuhlTranslateConstraint.setMaxY(0.33f);
+        fahrstuhlTranslateConstraint.setMaxY(1f);
         fahrstuhlTranslateConstraint.setMinY(0f);
 
         Constraint obenTranslateConstraint = new Translateable(new boolean[]{false, false, false});
@@ -62,12 +62,12 @@ public class Main {
         Constraint windeRotateConstraint = new Rotateable(new boolean[]{false, false, false});
 
         windeTranslateConstraint.setMaxX(0);
-        windeTranslateConstraint.setMinX(-0.2f);
+        windeTranslateConstraint.setMinX(-0.75f);
 
         PolygonObject unten = new ModelProxy("models/unten4.obj");
         PolygonObject fahrstuhl = new ModelProxy("models/fahrstuhl4.obj");
-        PolygonObject oben = new ModelProxy("models/oben4.obj");
-        PolygonObject winde = new ModelProxy("models/winde4.obj");
+        PolygonObject oben = new ModelProxy("models/oben5.obj");
+        PolygonObject winde = new ModelProxy("models/windeMitAuto.obj");
 
         PolygonObject baum = new ModelProxy("models/baum3.obj");
 
@@ -105,6 +105,8 @@ public class Main {
         
         cam.setRotateConstraint(camRotateConst);
         cam.setTranslateConstraint(camDistance);
+        cam.setRotateX(30f);
+        cam.setRotateY(320f);
         
         openGLPanel.addCam(cam);
         openGLPanel.addObjToDraw(cpo);

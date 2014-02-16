@@ -40,8 +40,10 @@ public abstract class PolygonObject implements OnlyDraw {
 
     protected Float trans_x = 0f;
     protected Float trans_y = 0f;
+    protected Float trans_z = 0f;
     protected Float prev_trans_x = 0f;
     protected Float prev_trans_y = 0f;
+    protected Float prev_trans_z = 0f;
 
     protected float scaleFactor = 1f;
 
@@ -52,7 +54,8 @@ public abstract class PolygonObject implements OnlyDraw {
     protected Constraint translateConstraint;
     protected GLPanel parentPanel;
     
-    protected float currentCamRotation = 0f;
+    protected float camDistance;
+    protected float[] currentCamRotation = new float[] { 0f, 0f, 0f };
     protected float inheritedAngle = 0f;
 
     public void loadTexture(Texture pTexToLoad) {
@@ -109,9 +112,9 @@ public abstract class PolygonObject implements OnlyDraw {
     }
 
     protected void translate(GL2 gl) {
-        float local_trans_x = trans_x * 3f;
-        float local_trans_y = trans_y * 3f;
-        float local_trans_z = 0f;
+        float local_trans_x = trans_x ;
+        float local_trans_y = trans_y;
+        float local_trans_z = trans_z;
 
         gl.glTranslatef(local_trans_x, local_trans_y, local_trans_z);
     }
@@ -173,8 +176,9 @@ public abstract class PolygonObject implements OnlyDraw {
     }
     
     protected float normalizeAngle(float angle) {
-        if(Math.abs(angle) > 360) {
-            angle = Math.abs(angle) - 360;
+        angle = Math.abs(angle);
+        if(angle > 360) {
+            angle = angle - 360;
         }
         
         return angle;
@@ -234,6 +238,7 @@ public abstract class PolygonObject implements OnlyDraw {
         if (rotateConstraint != null) {
             rotate_y = rotateConstraint.moveY(rotate_y);
         }
+        
         this.rotate_y = normalizeAngle(rotate_y);
     }
 
@@ -280,11 +285,52 @@ public abstract class PolygonObject implements OnlyDraw {
         this.prev_trans_y = prev_trans_y;
     }
 
-    public float getCurrentViewRotation() {
+    public float[] getCurrentViewRotation() {
         return currentCamRotation;
     }
 
-    public void setCurrentViewRotation(float currentViewRotation) {
-        this.currentCamRotation = currentViewRotation;
+    public void setCurrentViewRotation(float x, float y, float z) {
+        this.currentCamRotation[0] = x;
+        this.currentCamRotation[1] = y;
+        this.currentCamRotation[2] = z;
+    }
+    
+    public void setCurrentViewRotation(float[] xyz) {
+        this.currentCamRotation = xyz;
+    }
+
+    public Float getTrans_z() {
+        return trans_z;
+    }
+
+    public void setTrans_z(Float trans_z) {
+        if(translateConstraint != null) {
+            trans_z = translateConstraint.moveZ(trans_z);
+        }
+        this.trans_z = trans_z;
+    }
+
+    public Float getPrev_trans_z() {
+        return prev_trans_z;
+    }
+
+    public void setPrev_trans_z(Float prev_trans_z) {
+        this.prev_trans_z = prev_trans_z;
+    }
+
+    public float getInheritedAngle() {
+        return inheritedAngle;
+    }
+
+    public void setInheritedAngle(float inheritedAngle) {
+        this.inheritedAngle = inheritedAngle;
+    }
+
+    public float getCamDistance() {
+        return camDistance;
+    }
+
+    public void setCamDistance(float camDistance) {
+        this.camDistance = camDistance;
     }
 }

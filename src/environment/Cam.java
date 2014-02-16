@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package environment;
 
 import constraints.Constraint;
@@ -11,10 +10,12 @@ import javax.media.opengl.GL2;
 import javax.media.opengl.glu.GLU;
 
 /**
+ * Eine
  *
  * @author FloH
  */
 public class Cam {
+
     private float viewingAngle;
     private float whRatio;
     private float distance;
@@ -22,49 +23,49 @@ public class Cam {
     private float yPos = 0f;
     private float rotateX;
     private float rotateY;
-    
+    private float rotateZ;
+
     private Constraint rotateConstraint;
     private Constraint translateConstraint;
-    
+
     public Cam(float pAngle, float pDistance) {
         viewingAngle = pAngle;
         distance = pDistance;
-        
+
         rotateX = 0f;
         rotateY = 0f;
+        rotateZ = 0f;
     }
-    
+
     public Cam() {
         this(45f, 2.5f);
     }
-    
+
     public void draw(GL2 gl) {
         GLU glu = GLU.createGLU(gl);
         gl.glMatrixMode(GL2.GL_PROJECTION);
         gl.glLoadIdentity();
-        
+
         glu.gluPerspective(viewingAngle, whRatio, 1, 1000);
         gl.glMatrixMode(GL2.GL_MODELVIEW);
-        
+
         gl.glTranslatef(-xPos, -yPos, -distance);
         gl.glRotatef(rotateX, 1, 0, 0);
         gl.glRotatef(rotateY, 0, 1, 0);
         gl.glTranslatef(xPos, yPos, distance);
-        
-        double x = xPos, y = yPos, z = distance;
-        x = Math.cos(Math.toRadians(rotateX)) * z;
-        y = Math.sin(Math.toRadians(rotateX)) * y + Math.cos(Math.toRadians(rotateX)) * y;
-        z = Math.sin(Math.toRadians(rotateX)) * z;
+
 
         //glu.gluLookAt(x, yPos, z, 0, 0, 0, 0, 1, 0);
         glu.gluLookAt(xPos, yPos, distance, 0, 0, 0, 0, 1, 0);
     }
-    
+
     private float normalizeAngle(float angle) {
-        if(Math.abs(angle) > 360) {
+        if (angle < 0) {
+            angle = 360 - Math.abs(angle);
+        } else if(angle > 360) {
             angle = Math.abs(angle) - 360;
         }
-        
+
         return angle;
     }
 
@@ -89,10 +90,10 @@ public class Cam {
     }
 
     public void setDistance(float distance) {
-        if(translateConstraint != null) {
+        if (translateConstraint != null) {
             distance = translateConstraint.moveZ(distance);
         }
-        
+
         this.distance = distance;
     }
 
@@ -117,9 +118,11 @@ public class Cam {
     }
 
     public void setRotateX(float rotateX) {
-        if(rotateConstraint != null) {
+        if (rotateConstraint != null) {
             rotateX = rotateConstraint.moveX(rotateX);
         }
+        
+        System.out.println(rotateX + "x");
         
         this.rotateX = normalizeAngle(rotateX);
     }
@@ -129,10 +132,11 @@ public class Cam {
     }
 
     public void setRotateY(float rotateY) {
-        if(rotateConstraint != null) {
+        System.out.println(rotateY);
+        if (rotateConstraint != null) {
             rotateY = rotateConstraint.moveY(rotateY);
         }
-        
+
         this.rotateY = normalizeAngle(rotateY);
         System.out.println(rotateY);
     }
@@ -151,5 +155,13 @@ public class Cam {
 
     public void setTranslateConstraint(Constraint translateConstraint) {
         this.translateConstraint = translateConstraint;
+    }
+
+    public float getRotateZ() {
+        return rotateZ;
+    }
+
+    public void setRotateZ(float rotateZ) {
+        this.rotateZ = rotateZ;
     }
 }

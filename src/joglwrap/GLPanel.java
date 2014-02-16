@@ -27,7 +27,25 @@ import observer.MouseActionObserver;
 import objects3d.PolygonObject;
 
 /**
- *
+ * Ein Panel welches einem JFrame hinzugefuegt werden kann. Es handelt sich um 
+ * eine Spezifizierung der GLJPanel Klasse. Das Panel kann auf verschiedene
+ * Interaktionen reagieren und benachrichtigt die registrierte Objekte,
+ * insofern diese die entsprechenden Interfaces implementieren.
+ * 
+ * In dem Panel kann eine Kamera separat registriert werden, diese reagier auch
+ * auf Mausrad Interaktionen:
+ *      - Mausrad runter => Zoom out
+ *      - Mausrad hoch => Zoom in
+ *      - Mausrad klick => Kamera bewegen
+ * Alle anderen Mausinteraktionen werden an registrierte Unterobjekte weiter gegeben
+ * die das entsprechende Interface implementieren.
+ * 
+ * Dem Panel kann ebenfalls Licht hinzugefuegt werden, die das GLight Interface
+ * implementieren.
+ * 
+ * DrawOnly Objects sind Objekte, die einfach nur gezeichnet werden, d.h. es 
+ * wird keine Interaktionen mit Ihnen ausgefuehrt oder Aehnliches.
+ * 
  * @author Florian
  */
 public class GLPanel extends GLJPanel implements
@@ -157,8 +175,6 @@ public class GLPanel extends GLJPanel implements
         currentFocus.setFocus(false);
         currentFocus = objs.get(index);
         currentFocus.setFocus(true);
-
-        System.out.println("Setze ins Fokus: " + currentFocus.getObjNr() + " " + currentFocus);
     }
 
     public void drawObjects(GL2 gl) {
@@ -174,7 +190,6 @@ public class GLPanel extends GLJPanel implements
                 index = lights.indexOf(currentLight) - 1;
             }
             GLLight x = lights.get(index);
-            System.out.println("Aktiviere " + currentLight + " deaktiviere " + x);
             x.setEnabled(false);
         } else {
             gl.glDisable(GL2.GL_LIGHTING);
@@ -208,7 +223,8 @@ public class GLPanel extends GLJPanel implements
         for (PolygonObject i : objs) {
             i.draw(gl, mode);
             i.setParentPanel(this);
-            i.setCurrentViewRotation(currentCamera.getRotateY());
+            i.setCurrentViewRotation(currentCamera.getRotateX(), currentCamera.getRotateY(), currentCamera.getRotateZ());
+            i.setCamDistance(currentCamera.getDistance());
         }
     }
 
@@ -269,7 +285,6 @@ public class GLPanel extends GLJPanel implements
 
                 for (int j = 0; j < names; j++) {
                     for (MouseActionObserver oberserver : informByMouseActions) {
-                        System.out.println("clicked: " + pBuffer[ptr]);
                         oberserver.mouseClicked(convertedClickPoints[0], convertedClickPoints[1], pBuffer[ptr], currentMouseEvent);
                     }
                     ++ptr;
@@ -382,15 +397,23 @@ public class GLPanel extends GLJPanel implements
         if (e.getButton() == 2) {
             enterCamMode = true;
         }
-
+        
         currentMouseEvent = e;
         newCurrentClickPoint(e.getX(), e.getY());
 
         super.repaint();
     }
 
+    /**
+     * Rechnet die Mauskoordinaten in Prozente um und verschiebt sie in das
+     * Koordinatensystem von OpenGL
+     * 
+     * @param x
+     * @param y
+     * @return 
+     */
     private Float[] transformMouseCoords(int x, int y) {
-        return new Float[]{(float) x / super.getWidth(), (float) y / super.getHeight()};
+        return new Float[]{((float) x / super.getWidth()) - 0.5f, 1f - (((float) y / super.getHeight()) - 0.5f)};
     }
 
     @Override

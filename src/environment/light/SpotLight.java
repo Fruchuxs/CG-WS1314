@@ -29,6 +29,8 @@ public class SpotLight extends GLLight {
         gl.glLightfv(super.getName(), GL2.GL_DIFFUSE, light2_color_diff, 0);
         gl.glLightfv(super.getName(), GL2.GL_SPECULAR, light2_color_spec, 0);
         gl.glLightfv(super.getName(), GL2.GL_SPOT_DIRECTION, light2_spot_dir, 0);
+        /*gl.glLightfv(super.getName(), GL2.GL_SPOT_CUTOFF, 10.5f);
+        gl.glLightfv(super.getName(), GL2.GL_SPOT_EXPONENT, 50f);*/
     }
     
 }

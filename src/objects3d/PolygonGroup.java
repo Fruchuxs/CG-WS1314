@@ -12,11 +12,11 @@ import spielzeugkran.ModelProxy;
 
 /**
  * Gruppiert Polygone die von der Klasse PolygonObject erben und implementiert
- * einen MouseActionObserver, da die Gruppe faehig ist auf Mausinteraktionen zu
- * reagieren.
+ * einen MouseActionObserver, damit die Gruppe faehig ist auf Mausinteraktionen
+ * zu reagieren.
  *
  * Da PolygonGroup selber PolygonObject implementiert, kann sie auch unter
- * Gruppen beinhalten.
+ * Gruppen beinhalten, Untergruppen werden auch benachrichtigt.
  */
 public class PolygonGroup extends PolygonObject implements MouseActionObserver {
 
@@ -60,6 +60,20 @@ public class PolygonGroup extends PolygonObject implements MouseActionObserver {
      */
     private int mouseClickButton;
 
+    /**
+     * Erstellt einen PolygonGruppe mit einem PolygonObject als Hauptobjekt,
+     * welches die Gruppe repraesentiert.
+     *
+     * Momentan muss noch eine Hauptgruppe an ein Objekt gebunden sein, aber so
+     * wird realisiert, dass wenn zB das Hauptobjekt gedreht wird, auch alle
+     * anderen Objekte gedreht werden
+     *
+     * Die Gruppe wird auch mit den Transformationsparametern des Mainobjektes
+     * initialisiert, da die PolygonGruppe selber auch nur ein zusammengesetztes
+     * PolygonObject repraesentiert.
+     *
+     * @param pMainModel Das Mainmodel welches die Gruppe repraesentiert
+     */
     public PolygonGroup(PolygonObject pMainModel) {
         models = new HashMap<>();
         subGroupsToInform = new ArrayList<>();
@@ -68,13 +82,17 @@ public class PolygonGroup extends PolygonObject implements MouseActionObserver {
         translateConstraint = pMainModel.translateConstraint;
         rotateConstraint = pMainModel.rotateConstraint;
 
-        init();
+        init(mainModel);
     }
 
-    private void init() {
-        addModel(mainModel);
+    /**
+     * Initialisiert mit dem mainmodel und prueft auch ob das mainmodel ggf.
+     * selber auch eine Untergruppe ist
+     */
+    private void init(PolygonObject pToIni) {
+        addModel(pToIni);
 
-        checkIsSubGroup(mainModel);
+        checkIsSubGroup(pToIni);
         initExtrempoints();
     }
 
@@ -137,24 +155,37 @@ public class PolygonGroup extends PolygonObject implements MouseActionObserver {
 
         for (Map.Entry i : models.entrySet()) {
             j = (PolygonObject) i.getValue();
+
+            // vererbe Kameradistanz an Unterobjekte
             j.setCamDistance(camDistance);
+
+            // Fuelle Namestack wenn im GL_SELECT Modus
             if (mode == GL2.GL_SELECT) {
                 if (j instanceof PolygonGroup) {
+                    // Wenn Polygongruppe ist, rufe das Zeichnen rekursiv in Untergruppen auf
                     j.draw(gl, mode);
                 } else {
+                    // Fuelle Namestack
                     gl.glPushName((Integer) i.getKey());
                     j.draw(gl);
                     gl.glPopName();
                 }
             } else {
-                j.draw(gl);
+
+                // Zeichne einfach und veerbe die Viewrotation weiter
                 j.setCurrentViewRotation(super.getCurrentViewRotation());
+                j.draw(gl);
             }
         }
 
         afterDraw(gl);
     }
 
+    /**
+     * Fuegt ein model oder eine Subgrp zur Gruppe hinzu
+     *
+     * @param subM Gruppe oder Polygon-Objekt was hinzugefuegt werden soll
+     */
     public void addModel(PolygonObject subM) {
         checkIsSubGroup(subM);
         models.put(subM.getObjNr(), subM);
@@ -184,27 +215,38 @@ public class PolygonGroup extends PolygonObject implements MouseActionObserver {
         }
     }
 
+    /**
+     * Rotiert ein uebergebens Objekt anhand der x,y Koordinaten TODO: Pruefen,
+     * rotationen generell zusammenzufassen, bzw. pruefe Aufloesung/MausDPI
+     * Abhaengigkeiten
+     *
+     * @param toRotate Objekt welches rotiert werden soll
+     * @param x x-Mauskoordinate, umgerechnet in Prozent (anhand von Fenster verhaeltnis) und in die Mitte geschoben
+     * @param y y-Mauskoordinate, umgerechnet in Prozent (anhand von Fenster verhaeltnis) und in die Mitte geschoben
+     */
     private void rotateObject(PolygonObject toRotate, float x, float y) {
-        int rotate = 5;
+        int yRotate = 10;
 
-        // maus koordinatensystem transformieren fuer rotation 
+        // maus koordinatensystem transformieren fuer rotation
+        // sprich: verschiebe nach unten rechts
         x = x + 0.5f;
         y = y + 0.5f;
 
         if (toRotate != null) {
+            // x-Rotation bewusst kleiner gehalten
             if (Math.abs(toRotate.getPrev_trans_y() - y) > 0) {
                 if (y < toRotate.getPrev_trans_y()) { // links
-                    toRotate.setRotate_x(toRotate.getRotate_x() + 1);
+                    toRotate.setRotate_x(toRotate.getRotate_x() + 5);
                 } else { // rechts
-                    toRotate.setRotate_x(toRotate.getRotate_x() - 1);
+                    toRotate.setRotate_x(toRotate.getRotate_x() - 5);
                 }
             }
 
             if (Math.abs(toRotate.getPrev_trans_x() - x) > 0) {
                 if (x < toRotate.getPrev_trans_x()) { // unten
-                    toRotate.setRotate_y(toRotate.getRotate_y() - rotate);
+                    toRotate.setRotate_y(toRotate.getRotate_y() - yRotate);
                 } else { // rechts
-                    toRotate.setRotate_y(toRotate.getRotate_y() + rotate);
+                    toRotate.setRotate_y(toRotate.getRotate_y() + yRotate);
                 }
             }
 
@@ -213,49 +255,60 @@ public class PolygonGroup extends PolygonObject implements MouseActionObserver {
         }
     }
 
+    /**
+     * Verschiebt ein Objekt anhand der umgewandelten Mauskoordinaten.
+     * Die Rechnung ist hier etwas komplexer, bzw. hauefig modifiziert, damit die
+     * Verschiebung auf der Sichtachse der Kamera ablaeuft
+     * 
+     * @param pToMove Objekt welches verschoben werden soll
+     * @param x x-Mauskoordinate, umgerechnet in Prozent (anhand von Fenster verhaeltnis) und in die Mitte geschoben
+     * @param y y-Mauskoordinate, umgerechnet in Prozent (anhand von Fenster verhaeltnis) und in die Mitte geschoben
+     */
     private void moveObject(PolygonObject pToMove, float x, float y) {
-        float z = pToMove.getPrev_trans_x();
-        float nx, ny, nz;
+        float nx, nz;
 
         float yAngle, xAngle;
         yAngle = pToMove.getRotate_y() + pToMove.getCurrentViewRotation()[1] + pToMove.getInheritedAngle() + getInheritedAngle();
         xAngle = pToMove.getRotate_x() + pToMove.getCurrentViewRotation()[0];
 
-        double cosYAngle, sinYAngle, cosXAngle, sinXAngle;
+        double cosYAngle, sinYAngle; //, cosXAngle, sinXAngle;
         yAngle = -yAngle;
         cosYAngle = Math.cos(Math.toRadians(yAngle));
+        sinYAngle = Math.sin(Math.toRadians(yAngle));/*
         cosXAngle = Math.cos(Math.toRadians(xAngle));
-        sinYAngle = Math.sin(Math.toRadians(yAngle));
-        sinXAngle = Math.sin(Math.toRadians(xAngle));
+        sinXAngle = Math.sin(Math.toRadians(xAngle));*/
 
+        /*
+        Alte Drehtransformation
+        Problem: Letzter Wert wird nicht beruecksichtigt
+        */
         /*nx = (float)(cosYAngle * x);
          ny = (float)(sinYAngle * y);
          nz = (float)(sinYAngle * x);*/
+        
+        /* */
         double skalar = pToMove.getTrans_x() * cosYAngle + pToMove.getTrans_z() * (-sinYAngle);
 
-        /*if(skalar < 0) {
-         skalar = -skalar;
-         cosYAngle = -cosYAngle;
-         sinYAngle = -sinYAngle;
-         }*/
         nx = (float) (pToMove.getTrans_x() + (x - skalar) * cosYAngle);
-        ny = (float) (pToMove.getTrans_y() + (x - skalar) * 0);
         nz = (float) (pToMove.getTrans_z() + (x - skalar) * (-sinYAngle));
+        //ny = (float) (pToMove.getTrans_y() + (x - skalar) * 0);
+        
 
-        if (pToMove != null) {
             //pToMove.setTrans_x(pToMove.getTrans_x() + nx - pToMove.getPrev_trans_x());
+        pToMove.setTrans_y(pToMove.getTrans_y() + (y - pToMove.getPrev_trans_y()));
+        //pToMove.setTrans_z(pToMove.getTrans_z() - nz + pToMove.getPrev_trans_z());
 
-            pToMove.setTrans_y(pToMove.getTrans_y() + (y - pToMove.getPrev_trans_y()));
-            //pToMove.setTrans_z(pToMove.getTrans_z() - nz + pToMove.getPrev_trans_z());
+        pToMove.setTrans_x(nx);
+        //pToMove.setTrans_y(pToMove.getTrans_y() - ny + pToMove.getPrev_trans_y());
+        pToMove.setTrans_z(nz);
 
-            pToMove.setTrans_x(nx);
-            //pToMove.setTrans_y(pToMove.getTrans_y() - ny + pToMove.getPrev_trans_y());
-            pToMove.setTrans_z(nz);
+        // Multipliziere die Camdistance dazu
+        // nicht wissenschaftlich fundiert - eher durch ausprobieren um nachfolge Verschiebungen
+        // etwas zu beschleunigen; hat hier aber momentan keine Auswirkungen
+        pToMove.setPrev_trans_x(nx * camDistance);
+        pToMove.setPrev_trans_y(y);
+        pToMove.setPrev_trans_z(nz * camDistance);
 
-            pToMove.setPrev_trans_x(nx * camDistance);
-            pToMove.setPrev_trans_y(y);
-            pToMove.setPrev_trans_z(nz * camDistance);
-        }
     }
 
     @Override
@@ -268,6 +321,7 @@ public class PolygonGroup extends PolygonObject implements MouseActionObserver {
 
         if (active == null) {
             // deligiere an moegliche untergruppen weiter
+            // Die Gruppe weiss nicht, ob evtl unterobjekte angeklickt sind 
             for (PolygonGroup i : subGroupsToInform) {
                 i.mouseClicked(x, y, objNumber, e);
             }

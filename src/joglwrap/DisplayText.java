@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package joglwrap;
 
 import com.jogamp.opengl.util.gl2.GLUT;
@@ -13,7 +7,6 @@ import objects3d.OnlyDraw;
 
 /**
  *
- * @author FloH
  */
 public class DisplayText implements OnlyDraw{
     private int xPos;

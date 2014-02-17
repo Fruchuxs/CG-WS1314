@@ -4,8 +4,7 @@ import javax.media.opengl.GLCapabilities;
 import javax.media.opengl.GLProfile;
 
 /**
- *
- * @author Florian "Fruchuxs" Vogelpohl
+ * Initialisiert JOGL; Singleton
  */
 public class InitJOGL {
     private static GLCapabilities openGLCapabilities = null;
@@ -14,6 +13,12 @@ public class InitJOGL {
         
     }
     
+    /**
+     * Initialisiert JOGL und gibt das GLCapabilities Objekt zurueck
+     * TODO: Setzt momentan nur das GL2 Profil, evtl. dynamisch machen
+     * 
+     * @return Das GLCapabilities Objekt 
+     */
     public static GLCapabilities init() {
         if(openGLCapabilities == null) {
             // Muss vor der Verwendung von JOGL aufgerufen werden

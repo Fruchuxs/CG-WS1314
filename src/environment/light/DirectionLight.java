@@ -1,14 +1,10 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package environment.light;
 
 import javax.media.opengl.GL2;
 
 /**
- *
- * @author FloH
+ * Konkrete Implementierung des GLight Interfaces.
+ * Definiert ein DirectionLight
  */
 public class DirectionLight extends GLLight {
     

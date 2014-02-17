@@ -1,18 +1,16 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package observer;
 
 import java.awt.event.KeyEvent;
 
 /**
- *
- * @author FloH
+ * Observerinterface (zur Benachrichtigung implementierender Klassen) fuer 
+ * Tastaturinteraktione
  */
 public interface KeyboardActionObserver {
+    /**
+     * Wird getriggert, wenn eine Taste gedrueckt wurde
+     * 
+     * @param e KeyEvent
+     */
     public void keyPressed(KeyEvent e);
-    
 }

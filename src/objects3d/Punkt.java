@@ -1,23 +1,32 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package objects3d;
 
 /**
- *
- * @author Florian
+ * Einfache Punktklasse fuer das zeichnen eines 3D Punktes
  */
 public class Punkt {
-    Float x;
-    Float y;
-    Float z;
+    /**
+     * x-Koordinate
+     */
+    private Float x;
     
-    Punkt(Float pX, Float pY) {
-        this(pX, pY, null);
-    }
+    /**
+     * y-Koordinate
+     */
+    private Float y;
     
-    Punkt(Float pX, Float pY, Float pZ) {
+    /**
+     * z-Koordinate
+     */
+    private Float z;
+    
+    /**
+     * Erzeugt einen Punkt mit den entsprechenden Werten.
+     * 
+     * @param pX x-Koordinate
+     * @param pY yKoordinate
+     * @param pZ zKoordinate
+     */
+    public Punkt(Float pX, Float pY, Float pZ) {
         if(pX == null || pY == null) {
             throw new IllegalArgumentException();
         }
@@ -26,31 +35,55 @@ public class Punkt {
         y = pY;
         z = pZ;
     }
-    
-    public Boolean is3D() {
-        return !(z == null);
-    }
 
+    /**
+     * Gibt die x-Koordinate zurueck.
+     * 
+     * @return x-Koordinate
+     */
     public Float getX() {
         return x;
     }
 
+    /**
+     * Setzt die x-Koordinate.
+     * 
+     * @param x x-Koordinate die gesetzt werden soll.
+     */
     public void setX(Float x) {
         this.x = x;
     }
 
+    /**
+     * Gibt die y-Koordinate zurueck.
+     * 
+     * @return y-Koordinate
+     */
     public Float getY() {
         return y;
     }
 
+    /**
+     * Setzt die y-Koordinate
+     * 
+     * @param y y-Koordinate
+     */
     public void setY(Float y) {
         this.y = y;
     }
 
+    /**
+     * Gibt die z-Koordinate zurueck
+     * @return z-Koordinate
+     */
     public Float getZ() {
         return z;
     }
 
+    /**
+     * Setzt die z-Koordinate
+     * @param z z-Koordinate
+     */
     public void setZ(Float z) {
         this.z = z;
     }

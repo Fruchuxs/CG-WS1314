@@ -280,6 +280,8 @@ public class GLPanel extends GLJPanel implements
 
                 lights.get(index).setEnabled(false);
             }
+            
+            System.out.println(currentLight);
         } else {
             gl.glDisable(GL2.GL_LIGHTING);
         }

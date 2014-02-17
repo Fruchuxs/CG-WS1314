@@ -185,19 +185,27 @@ public class PolygonGroup extends PolygonObject implements MouseActionObserver {
     }
 
     private void rotateObject(PolygonObject toRotate, float x, float y) {
-        int rotate = 1000;
+        int rotate = 5;
+
+        // maus koordinatensystem transformieren fuer rotation 
+        x = x + 0.5f;
+        y = y + 0.5f;
 
         if (toRotate != null) {
-            if (x < toRotate.getPrev_trans_x()) { // links
-                toRotate.setRotate_x(toRotate.getRotate_x() + (toRotate.getPrev_trans_y() - y) * rotate);
-            } else { // rechts
-                toRotate.setRotate_x(toRotate.getRotate_x() - (toRotate.getPrev_trans_y() - y) * rotate);
+            if (Math.abs(toRotate.getPrev_trans_y() - y) > 0) {
+                if (y < toRotate.getPrev_trans_y()) { // links
+                    toRotate.setRotate_x(toRotate.getRotate_x() + 1);
+                } else { // rechts
+                    toRotate.setRotate_x(toRotate.getRotate_x() - 1);
+                }
             }
 
-            if (y < toRotate.getPrev_trans_y()) { // unten
-                toRotate.setRotate_y(toRotate.getRotate_y() - (toRotate.getPrev_trans_x() - x) * rotate);
-            } else { // rechts
-                toRotate.setRotate_y(toRotate.getRotate_y() + (toRotate.getPrev_trans_x() - x) * rotate);
+            if (Math.abs(toRotate.getPrev_trans_x() - x) > 0) {
+                if (x < toRotate.getPrev_trans_x()) { // unten
+                    toRotate.setRotate_y(toRotate.getRotate_y() - rotate);
+                } else { // rechts
+                    toRotate.setRotate_y(toRotate.getRotate_y() + rotate);
+                }
             }
 
             toRotate.setPrev_trans_x(x);
@@ -212,7 +220,7 @@ public class PolygonGroup extends PolygonObject implements MouseActionObserver {
         float yAngle, xAngle;
         yAngle = pToMove.getRotate_y() + pToMove.getCurrentViewRotation()[1] + pToMove.getInheritedAngle() + getInheritedAngle();
         xAngle = pToMove.getRotate_x() + pToMove.getCurrentViewRotation()[0];
-        
+
         double cosYAngle, sinYAngle, cosXAngle, sinXAngle;
         yAngle = -yAngle;
         cosYAngle = Math.cos(Math.toRadians(yAngle));
@@ -233,7 +241,7 @@ public class PolygonGroup extends PolygonObject implements MouseActionObserver {
         nx = (float) (pToMove.getTrans_x() + (x - skalar) * cosYAngle);
         ny = (float) (pToMove.getTrans_y() + (x - skalar) * 0);
         nz = (float) (pToMove.getTrans_z() + (x - skalar) * (-sinYAngle));
-        
+
         if (pToMove != null) {
             //pToMove.setTrans_x(pToMove.getTrans_x() + nx - pToMove.getPrev_trans_x());
 
@@ -253,7 +261,7 @@ public class PolygonGroup extends PolygonObject implements MouseActionObserver {
     @Override
     public void mouseClicked(float x, float y, Integer objNumber, MouseEvent e) {
         mouseClickButton = e.getButton();
-        
+
         if (objNumber != null) {
             active = models.get(objNumber);
         }

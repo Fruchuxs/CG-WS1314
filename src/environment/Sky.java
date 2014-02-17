@@ -21,18 +21,41 @@ import joglwrap.GLPanel;
 import objects3d.OnlyDraw;
 
 /**
- *
- * @author FloH
+ * Zeichnet einen Himmel bzw. effektiv eine Spehre die ab der Haelfte
+ * aufgeschnitten ist. Soll nur gezeichnet werden, daher das OnlyDraw Interface
  */
 public class Sky implements OnlyDraw {
+    /**
+     * Elternpanel
+     */
     private GLPanel parentPanel;
+    
+    /**
+     * Die Himmelstexture
+     */
     private Texture skyTexture;
+    
+    /**
+     * Texture die geladen werden soll
+     */
     private String textureToLoad;
     
+    /**
+     * Erzeugt einen Himmel mit der Texture.
+     * TODO: Parameter setzten fuer bessere Himmelkonfiguration - magic-Numbers entfernen
+     * @param pTextureUrl 
+     */
     public Sky(String pTextureUrl) {     
         textureToLoad = pTextureUrl;
     }
     
+    /**
+     * Laedt die Texture; ist ausgelagert, da zum laden ein aktiver OpenGL Kontext
+     * benoetigt wird.
+     * TODO: Texture lade Methode evtl. in eine abstracte Klasse auslagern!
+     * 
+     * @param pTextureUrl Pfad zur Texture
+     */
     private void loadTexture(String pTextureUrl) {
         if(pTextureUrl != null) {
             Path texture = FileSystems.getDefault().getPath(pTextureUrl);
@@ -47,6 +70,11 @@ public class Sky implements OnlyDraw {
         }
     }
     
+    /**
+     * Zeichnet den Himmel.
+     * 
+     * @param gl Momentaner OpenGL Kontext.
+     */
     @Override
     public void draw(GL2 gl) {
         if(skyTexture == null) {
@@ -61,19 +89,26 @@ public class Sky implements OnlyDraw {
             }
             
             GLUquadric quadric = glu.gluNewQuadric();
+            
+            // Erzeugen damit Texture gerundet gemapt werden kann
             glu.gluQuadricTexture(quadric, true);
             glu.gluQuadricOrientation(quadric, GLU.GLU_INSIDE);
 
-            /*gl.glDisable(GL2.GL_DEPTH_TEST);
+            /* auskommentiert, da dies leider Fehler verusacht*//*gl.glDisable(GL2.GL_DEPTH_TEST);
             gl.glDepthMask(false);*/
 
             gl.glPushMatrix();
 
-            //gl.glTranslatef(currentCam.getX(), currentCam.getY(), currentCam.getDistance());
+            // Rotieren, damit der Begin der Kugel oben ist
             gl.glRotatef(90f, 1, 0, 0);
+            
+            // Schneide ab der Mitte durch
             double[] clipPlane2 = {0.0f, 0.0f, -1.0f, 0.5f};
             gl.glClipPlane(GL2.GL_CLIP_PLANE2, clipPlane2, 0);
             gl.glEnable(GL2.GL_CLIP_PLANE2);
+            
+            
+            // Zeichnen der Spehere, ausschalten vom clipping
             glu.gluSphere(quadric, 20, 200, 15);
             gl.glDisable(GL2.GL_CLIP_PLANE2);
 
@@ -82,6 +117,7 @@ public class Sky implements OnlyDraw {
             }
             gl.glPopMatrix();
 
+            // s.o. 
             //gl.glEnable(GL2.GL_DEPTH_TEST);
             //gl.glDepthMask(true);
         }

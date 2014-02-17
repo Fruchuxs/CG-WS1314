@@ -19,6 +19,7 @@ import joglwrap.GLPanel;
 import environment.Plane;
 import environment.Sky;
 import environment.light.SpotLight;
+import joglwrap.DisplayText;
 import transforms.Translate;
 import objects3d.PolygonGroup;
 import objects3d.PolygonObject;
@@ -67,7 +68,7 @@ public class Main {
         PolygonObject unten = new ModelProxy("models/unten4.obj");
         PolygonObject fahrstuhl = new ModelProxy("models/fahrstuhl4.obj");
         PolygonObject oben = new ModelProxy("models/oben5.obj");
-        PolygonObject winde = new ModelProxy("models/windeMitAuto.obj");
+        PolygonObject winde = new ModelProxy("models/windeFinal.obj");
 
         PolygonObject baum = new ModelProxy("models/baum3.obj");
 
@@ -79,10 +80,15 @@ public class Main {
 
         winde.setRotateConstraint(windeRotateConstraint);
         winde.setTranslateConstraint(windeTranslateConstraint);
-
+        
+        Constraint kranConstraint = new Translateable(new boolean[] { true, true, true });
+        kranConstraint.setMinY(0);
+        kranConstraint.setMaxY(5);
+        
         PolygonGroup cpo = new PolygonGroup(unten);
         
         cpo.addModel(fahrstuhl);
+        cpo.setTranslateConstraint(kranConstraint);
         
         Translate transk0 = new Translate(-1.2f, 0f, -0.7f);
         baum.addTransformation(transk0);
@@ -108,10 +114,21 @@ public class Main {
         cam.setRotateX(20f);
         cam.setRotateY(320f);
         
+        DisplayText text0 = new DisplayText("Linke Maustaste druecken um Objekte zu bewegen", 5, 15);
+        DisplayText text1 = new DisplayText("Rechte um sie zu drehen", 5, 30);
+        DisplayText text2 = new DisplayText("Mittlere fuer Kamera Bewegung", 5, 45);
+        DisplayText text3 = new DisplayText("Es kann nur mit manchen Objekten interagiert werden!", 5, 60);
+
+        
         openGLPanel.addCam(cam);
         openGLPanel.addObjToDraw(cpo);
         openGLPanel.addOnlyDrawObj(sky);
         openGLPanel.addOnlyDrawObj(plane);
+        
+        openGLPanel.addOnlyDrawObj(text0);
+        openGLPanel.addOnlyDrawObj(text1);
+        openGLPanel.addOnlyDrawObj(text2);
+        openGLPanel.addOnlyDrawObj(text3);
         
         
         openGLPanel.addLight(new SpotLight(GL2.GL_LIGHT0));

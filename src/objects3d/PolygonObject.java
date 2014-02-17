@@ -176,11 +176,12 @@ public abstract class PolygonObject implements OnlyDraw {
     }
     
     protected float normalizeAngle(float angle) {
-        angle = Math.abs(angle);
-        if(angle > 360) {
-            angle = angle - 360;
+        if (angle < 0) {
+            angle = 360 - Math.abs(angle);
+        } else if(angle > 360) {
+            angle = Math.abs(angle) - 360;
         }
-        
+
         return angle;
     }
 

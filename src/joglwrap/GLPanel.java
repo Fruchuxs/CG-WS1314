@@ -281,7 +281,6 @@ public class GLPanel extends GLJPanel implements
                 lights.get(index).setEnabled(false);
             }
             
-            System.out.println(currentLight);
         } else {
             gl.glDisable(GL2.GL_LIGHTING);
         }
@@ -561,7 +560,7 @@ public class GLPanel extends GLJPanel implements
         if (enterCamMode) {
             int newX = currentClickPoint[0] - mouse_x;
             int newY = currentClickPoint[1] - mouse_y;
-            int rotateby = 2;
+            int rotateby = 3;
 
             // rotieren um y
             if (newX < 0) { // rechts

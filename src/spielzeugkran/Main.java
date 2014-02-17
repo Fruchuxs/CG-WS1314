@@ -27,6 +27,7 @@ public class Main {
 
     private JFrame mainFrame;
     private GLPanel openGLPanel;
+    private String title = "Spielzeugkran by Florian & Stefan";
 
     public Main(int pWidth, int pHeight) {
         setupMainFrame();
@@ -35,6 +36,7 @@ public class Main {
     
     public void run() throws FileNotFoundException {
         createAndAddCrane();
+        mainFrame.setTitle(title);
         mainFrame.add(openGLPanel);
         mainFrame.pack();
         mainFrame.setVisible(true);
@@ -46,6 +48,9 @@ public class Main {
     }
 
     private void createAndAddCrane() throws FileNotFoundException {
+        /**
+         * Definiere Constraints
+         */
         Constraint fahrstuhlTranslateConstraint = new Translateable(new boolean[]{false, true, false});
         Constraint fahrstuhlRotateConstraint = new Rotateable(new boolean[]{false, false, false});
         fahrstuhlTranslateConstraint.setMaxY(1f);
@@ -60,6 +65,9 @@ public class Main {
         windeTranslateConstraint.setMaxX(0);
         windeTranslateConstraint.setMinX(-0.75f);
 
+        /**
+         * Lade Models
+         */
         PolygonObject unten = new ModelProxy("models/unten4.obj");
         PolygonObject fahrstuhl = new ModelProxy("models/fahrstuhl4.obj");
         PolygonObject oben = new ModelProxy("models/oben5.obj");
@@ -67,6 +75,9 @@ public class Main {
 
         PolygonObject baum = new ModelProxy("models/baum3.obj");
 
+        /**
+         * Fuege Constraints hinzu
+         */
         fahrstuhl.setRotateConstraint(fahrstuhlRotateConstraint);
         fahrstuhl.setTranslateConstraint(fahrstuhlTranslateConstraint);
 
@@ -92,10 +103,18 @@ public class Main {
 
         cpo.addModel(bla);
         
+        /**
+         * Erstelle Himmel und Ebene
+         */
+        
         Sky sky = new Sky("models/sky.jpg");
         Plane plane = new Plane("models/holztextur.jpg", 500f, 500f);
         
-        openGLPanel.addOnlyDrawObj(baum);
+        
+        
+        /**
+         * Kamera erstellen und Constraints setzen
+         */
         Cam cam = new Cam();
         Rotateable camRotateConst = new Rotateable(new boolean[] { true, true, true });
         Translateable camDistance = new Translateable(new boolean[] { true, true, true });
@@ -109,6 +128,9 @@ public class Main {
         cam.setRotateX(20f);
         cam.setRotateY(320f);
         
+        /**
+         * Display text hinzufuegen
+         */
         DisplayText text0 = new DisplayText("Linke Maustaste druecken um Objekte zu bewegen", 5, 15);
         DisplayText text1 = new DisplayText("Rechte um sie zu drehen", 5, 30);
         DisplayText text2 = new DisplayText("Mittlere fuer Kamera Bewegung", 5, 45);
@@ -124,6 +146,7 @@ public class Main {
         openGLPanel.addOnlyDrawObj(text1);
         openGLPanel.addOnlyDrawObj(text2);
         openGLPanel.addOnlyDrawObj(text3);
+        openGLPanel.addOnlyDrawObj(baum);
         
         
         openGLPanel.addLight(new SpotLight(GL2.GL_LIGHT0));
